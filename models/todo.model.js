@@ -6,11 +6,16 @@ const todoSchema = new Schema({
         type: String,
         required: true
     },
+    
     description:{type: String},
     catagory: {
         type: String,
         enum: ['Work', 'Personal', 'Shopping', 'Others'],
         default: 'Others'
+    },
+    completed:{
+        type: Boolean,
+        default: false
     },
     user:{
         type: mongoose.Schema.Types.ObjectId,

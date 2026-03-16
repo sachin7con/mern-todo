@@ -17,14 +17,17 @@ exports.getTodos = async (req, res) => {
 // CREATE
 exports.createTodo = async (req, res) => {
     try {
-        const { text } = req.body;
+        const { text, catagory } = req.body;  // <-- include catagory
 
-        const newTodo = await Todo.create({ text,
-            user: req.user.id  // for user specific 
-         });
+        const newTodo = await Todo.create({
+            text,
+            catagory,            // <-- set selected category
+            user: req.user.id
+        });
 
-        res.status(201).json({status: "Success", data: newTodo} );
+        res.status(201).json({ status: "Success", data: newTodo });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Error creating todo" });
     }
 };
@@ -45,6 +48,27 @@ exports.updateTodo = async (req, res) => {
         res.status(500).json({ message: "Error updating todo" });
     }
 };
+
+//Toggle Completed 
+exports.toggleTodo = async(req, res) =>{
+    try{
+        const todo = await Todo.findOne({
+            _id: req.params.id,
+            user: req.user.id
+        })
+
+        if(!todo){
+            res.status(400).json({message:"Todo not found" })
+        }
+        todo.completed = !todo.completed; // ✅ toggle correctly
+        await todo.save();
+        res.json(todo);
+    }
+    catch(err){
+        console.log(err);
+        res.status(400).json({status:"Failure", message:"Error updating todo"})
+    }
+}
 
 // DELETE
 exports.deleteTodo = async (req, res) => {

@@ -7,5 +7,6 @@ router.get('/', authController, todoController.getTodos);
 router.post('/', authController, todoController.createTodo);
 router.put('/:id', authController, todoController.updateTodo);
 router.delete('/:id', authController, todoController.deleteTodo);
+router.patch('/:id/toggle', authController, todoController.toggleTodo);
 
 module.exports = router;
