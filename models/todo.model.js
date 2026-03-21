@@ -8,10 +8,15 @@ const todoSchema = new Schema({
     },
     
     description:{type: String},
-    catagory: {
+    category: {
         type: String,
         enum: ['Work', 'Personal', 'Shopping', 'Others'],
         default: 'Others'
+    },
+    priority : {
+        type: String,
+        enum: ['High', 'Medium', 'Low'],
+        default: 'High'
     },
     completed:{
         type: Boolean,

@@ -3,11 +3,18 @@ const Todo = require('../models/todo.model');
 // GET ALL
 exports.getTodos = async (req, res) => {
     try {
-        const { catagory, search } = req.query;
+        const { category, search } = req.query;
         let query = { user: req.user.id } // Always filter by the logged-in user
         // const todos = await Todo.find({ user: req.user.id });  //// for user related find 
+        if (category) {
+             query.category = category;
+            }
+
+        if (search) {
+           query.text = { $regex: search, $options: "i" };
+          }
         
-        const todos = await Todo.find(query).sort({ createdAt: -1});
+          const todos = await Todo.find(query).sort({ createdAt: -1});
         res.status(200).json(todos);
     } catch (error) {
         res.status(500).json({ message: "Error fetching todos" });
@@ -17,11 +24,12 @@ exports.getTodos = async (req, res) => {
 // CREATE
 exports.createTodo = async (req, res) => {
     try {
-        const { text, catagory } = req.body;  // <-- include catagory
+        const { text, category, priority } = req.body;  // <-- include catagory
 
         const newTodo = await Todo.create({
             text,
-            catagory,            // <-- set selected category
+            category,            // <-- set selected category
+            priority,            // <-- set selected priority
             user: req.user.id
         });
 
@@ -58,7 +66,7 @@ exports.toggleTodo = async(req, res) =>{
         })
 
         if(!todo){
-            res.status(400).json({message:"Todo not found" })
+            return res.status(400).json({message:"Todo not found" })
         }
         todo.completed = !todo.completed; // ✅ toggle correctly
         await todo.save();
