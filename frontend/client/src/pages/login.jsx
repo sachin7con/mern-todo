@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext.jsx";
 
 
 
@@ -22,12 +22,13 @@ function Login() {
         email,
         password
       });
-
+       console.log("LOGIN RESPONSE:", res.data);  
       login(res.data); // save user + token
 
       navigate("/dashboard");
 
     } catch (err) {
+       console.log("LOGIN ERROR:", err);
 
       alert(err.response?.data?.message || "Login failed");
 
