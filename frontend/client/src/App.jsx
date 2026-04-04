@@ -4,8 +4,8 @@ import Login from "./pages/login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import { Navigate } from "react-router-dom";
-import Home from "./pages/home"
+// import { Navigate } from "react-router-dom";
+import Home from "./pages/Home";
 
 function App() {
 
@@ -15,7 +15,7 @@ function App() {
 
       <Routes>
         {/* <Route path="/" element={<Navigate to="/login" />} /> */}
-        <Route path="/" element={< Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
