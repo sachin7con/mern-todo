@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { Navigate } from "react-router-dom";
+import Home from "./pages/home"
 
 function App() {
 
@@ -13,7 +14,8 @@ function App() {
     <BrowserRouter>
 
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
+        {/* <Route path="/" element={<Navigate to="/login" />} /> */}
+        <Route path="/" element={< Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
