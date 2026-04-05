@@ -7,6 +7,7 @@ function Dashboard() {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const [activeView, setActiveView] = useState("all");
   const [loading, setLoading] = useState(false);
   const [todos, setTodos] = useState([]);
   const [text, setText] = useState("");
@@ -15,197 +16,237 @@ function Dashboard() {
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
 
+  // ✅ Fetch Todos
   const fetchTodos = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await API.get("/todos", {
-      params: {
-        search,
-        category: filterCategory
-      }
-    });
+      const res = await API.get("/todos", {
+        params: {
+          search,
+          category: filterCategory,
+        },
+      });
 
-    setTodos(res.data);
-  } catch (err) {
-    console.log(err);
-  } finally {
-    setLoading(false);
-  }
-};
+      setTodos(res.data);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchTodos();
   }, [search, filterCategory]);
 
+  // ✅ Add Todo
   const addTodo = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
       const res = await API.post("/todos", { text, category, priority });
-      setTodos([...todos, res.data.data]); // backend returns {status, data}
+
+      setTodos([...todos, res.data.data]);
+
       setText("");
       setCategory("Others");
       setPriority("Low");
     } catch (err) {
       console.log(err);
-    } finally{
+    } finally {
       setLoading(false);
     }
   };
 
+  // ✅ Edit
   const editTodo = async (id, newText) => {
-    try{
-      const res =  await API.put(`/todos/${id}`, { text: newText });
-      setTodos(todos.map((todo) => todo._id === id ? res.data : todo ));
-    }
-    catch(err){
+    try {
+      const res = await API.put(`/todos/${id}`, { text: newText });
+      setTodos(todos.map((t) => (t._id === id ? res.data : t)));
+    } catch (err) {
       console.log(err);
     }
-  }
+  };
 
+  // ✅ Delete
   const deleteTodo = async (id) => {
     try {
       await API.delete(`/todos/${id}`);
-      setTodos(todos.filter((todo) => todo._id !== id));
+      setTodos(todos.filter((t) => t._id !== id));
     } catch (err) {
       console.log(err);
     }
   };
 
+  // ✅ Toggle
   const toggleCompleted = async (id) => {
     try {
       const res = await API.patch(`/todos/${id}/toggle`);
-      setTodos(todos.map((todo) => (todo._id === id ? res.data : todo)));
+      setTodos(todos.map((t) => (t._id === id ? res.data : t)));
     } catch (err) {
       console.log(err);
     }
   };
 
+  // ✅ Logout
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
+  // ✅ Sidebar Filtering Logic
+  const filteredTodos = todos.filter((todo) => {
+    if (activeView === "completed") return todo.completed;
+    if (activeView === "pending") return !todo.completed;
+    if (activeView === "work") return todo.category === "Work";
+    if (activeView === "personal") return todo.category === "Personal";
+    return true;
+  });
+
   return (
-  <div style={styles.container}>
+    <div style={styles.container}>
+      
+      {/* Sidebar */}
+      <div style={styles.sidebar}>
+        <h2 style={styles.logo}>TaskFlow</h2>
 
-    {/* Sidebar */}
-    <div style={styles.sidebar}>
-      <h2 style={styles.logo}>TaskFlow</h2>
+        <button
+          style={activeView === "all" ? styles.activeBtn : styles.sidebarBtn}
+          onClick={() => setActiveView("all")}
+        >
+          📋 All Tasks
+        </button>
 
-      <button style={styles.sidebarBtn}>Dashboard</button>
+        <button
+          style={activeView === "completed" ? styles.activeBtn : styles.sidebarBtn}
+          onClick={() => setActiveView("completed")}
+        >
+          ✅ Completed
+        </button>
 
-      <button style={styles.logoutBtn} onClick={handleLogout}>
-        Logout
-      </button>
-    </div>
+        <button
+          style={activeView === "pending" ? styles.activeBtn : styles.sidebarBtn}
+          onClick={() => setActiveView("pending")}
+        >
+          ⏳ Pending
+        </button>
 
-    {/* Main Content */}
-    <div style={styles.main}>
+        <button
+          style={activeView === "work" ? styles.activeBtn : styles.sidebarBtn}
+          onClick={() => setActiveView("work")}
+        >
+          💼 Work
+        </button>
 
-      <h2 style={styles.heading}>Your Tasks</h2>
+        <button
+          style={activeView === "personal" ? styles.activeBtn : styles.sidebarBtn}
+          onClick={() => setActiveView("personal")}
+        >
+          🏠 Personal
+        </button>
 
-      {/* Add Task */}
-      <div style={styles.card}>
-        <form onSubmit={addTodo} style={styles.form}>
+        <button style={styles.logoutBtn} onClick={handleLogout}>
+          🚪 Logout
+        </button>
+      </div>
+
+      {/* Main */}
+      <div style={styles.main}>
+        <h2 style={styles.heading}>Your Tasks</h2>
+
+        {/* Add Task */}
+        <div style={styles.card}>
+          <form onSubmit={addTodo} style={styles.form}>
+            <input
+              type="text"
+              placeholder="Enter task..."
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              required
+              style={styles.input}
+            />
+
+            <select value={priority} onChange={(e) => setPriority(e.target.value)} style={styles.select}>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+
+            <select value={category} onChange={(e) => setCategory(e.target.value)} style={styles.select}>
+              <option value="Work">Work</option>
+              <option value="Personal">Personal</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Others">Others</option>
+            </select>
+
+            <button type="submit" style={styles.addBtn}>Add</button>
+          </form>
+        </div>
+
+        {/* Search */}
+        <div style={styles.card}>
           <input
             type="text"
-            placeholder="Enter task..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            required
+            value={search}
+            placeholder="Search..."
+            onChange={(e) => setSearch(e.target.value)}
             style={styles.input}
           />
+        </div>
 
-          <select value={priority} onChange={(e) => setPriority(e.target.value)} style={styles.select}>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
+        {/* Tasks */}
+        <div style={styles.card}>
+          {loading ? (
+            <p>Loading...</p>
+          ) : filteredTodos.length === 0 ? (
+            <p>No tasks 😴</p>
+          ) : (
+            filteredTodos.map((todo) => (
+              <div key={todo._id} style={styles.todoCard}>
+                <input
+                  type="checkbox"
+                  checked={todo.completed}
+                  onChange={() => toggleCompleted(todo._id)}
+                />
 
-          <select value={category} onChange={(e) => setCategory(e.target.value)} style={styles.select}>
-            <option value="Work">Work</option>
-            <option value="Personal">Personal</option>
-            <option value="Shopping">Shopping</option>
-            <option value="Others">Others</option>
-          </select>
+                <div style={{ flex: 1 }}>
+                  <span style={{
+                    textDecoration: todo.completed ? "line-through" : "none"
+                  }}>
+                    {todo.text}
+                  </span>
 
-          <button type="submit" style={styles.addBtn}>Add</button>
-        </form>
-      </div>
-
-      {/* Filters */}
-      <div style={styles.card}>
-        <input
-          type="text"
-          value={search}
-          placeholder="Search..."
-          onChange={(e) => setSearch(e.target.value)}
-          style={styles.input}
-        />
-
-        <select onChange={(e) => setFilterCategory(e.target.value)} style={styles.select}>
-          <option value="">All</option>
-          <option value="Work">Work</option>
-          <option value="Personal">Personal</option>
-          <option value="Shopping">Shopping</option>
-          <option value="Others">Others</option>
-        </select>
-      </div>
-
-      {/* Task List */}
-      <div style={styles.card}>
-        {loading ? (
-          <p>Loading...</p>
-        ) : todos.length === 0 ? (
-          <p>No tasks 😴</p>
-        ) : (
-          todos.map((todo) => (
-            <div key={todo._id} style={styles.todoCard}>
-              <input
-                type="checkbox"
-                checked={todo.completed}
-                onChange={() => toggleCompleted(todo._id)}
-              />
-
-              <div style={{ flex: 1 }}>
-                <span style={{
-                  textDecoration: todo.completed ? "line-through" : "none"
-                }}>
-                  {todo.text}
-                </span>
-
-                <div style={styles.meta}>
-                  {todo.category} • {todo.priority}
+                  <div style={styles.meta}>
+                    {todo.category} • {todo.priority}
+                  </div>
                 </div>
+
+                <button
+                  style={styles.editBtn}
+                  onClick={() => {
+                    const newText = prompt("Edit:", todo.text);
+                    if (newText) editTodo(todo._id, newText);
+                  }}
+                >
+                  ✏️
+                </button>
+
+                <button
+                  style={styles.deleteBtn}
+                  onClick={() => deleteTodo(todo._id)}
+                >
+                  ❌
+                </button>
               </div>
-
-              <button
-                style={styles.editBtn}
-                onClick={() => {
-                  const newText = prompt("Edit:", todo.text);
-                  if (newText) editTodo(todo._id, newText);
-                }}
-              >
-                ✏️
-              </button>
-
-              <button
-                style={styles.deleteBtn}
-                onClick={() => deleteTodo(todo._id)}
-              >
-                ❌
-              </button>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
-
     </div>
-  </div>
-);
+  );
 }
+
 const styles = {
   container: {
     display: "flex",
@@ -220,7 +261,7 @@ const styles = {
     padding: "20px",
     display: "flex",
     flexDirection: "column",
-    gap: "15px",
+    gap: "10px",
   },
 
   logo: {
@@ -230,6 +271,15 @@ const styles = {
   sidebarBtn: {
     padding: "10px",
     background: "#1e293b",
+    border: "none",
+    color: "white",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+
+  activeBtn: {
+    padding: "10px",
+    background: "#3b82f6",
     border: "none",
     color: "white",
     borderRadius: "5px",
@@ -321,4 +371,5 @@ const styles = {
     cursor: "pointer",
   },
 };
+
 export default Dashboard;
