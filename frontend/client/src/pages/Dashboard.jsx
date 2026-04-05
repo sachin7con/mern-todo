@@ -88,136 +88,238 @@ function Dashboard() {
   };
 
   return (
-    //NAvbar
-    <><div style={{
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: "10px 20px",
-  background: "#333",
-  color: "#fff",
-  borderRadius: "8px"
-}}>
-  <h2 style={{ margin: 0 }}>Todo App</h2>
-  <button 
-    onClick={handleLogout}
-    style={{
-      background: "#ff4d4d",
-      border: "none",
-      padding: "6px 12px",
-      color: "#fff",
-      borderRadius: "5px",
-      cursor: "pointer"
-    }}
-  >
-    Logout
-  </button>
-</div>
+  <div style={styles.container}>
 
+    {/* Navbar */}
+    <div style={styles.navbar}>
+      <h2>TaskFlow Dashboard</h2>
+      <button style={styles.logoutBtn} onClick={handleLogout}>
+        Logout
+      </button>
+    </div>
 
+    <div style={styles.content}>
 
-    <div style={{ width: "500px", margin: "50px auto", fontFamily: "Arial, sans-serif" }}>
-      <h2>Dashboard</h2>
-      
-      <h3>Add Todo</h3>
-      <form onSubmit={addTodo} style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+      {/* Add Todo */}
+      <div style={styles.card}>
+        <h3>Add New Task</h3>
+
+        <form onSubmit={addTodo} style={styles.form}>
+          <input
+            type="text"
+            placeholder="Enter task..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            required
+            style={styles.input}
+          />
+
+          <select value={priority} onChange={(e) => setPriority(e.target.value)} style={styles.select}>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+
+          <select value={category} onChange={(e) => setCategory(e.target.value)} style={styles.select}>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Others">Others</option>
+          </select>
+
+          <button type="submit" style={styles.addBtn}>Add</button>
+        </form>
+      </div>
+
+      {/* Filters */}
+      <div style={styles.card}>
+        <h3>Search & Filter</h3>
+
         <input
           type="text"
-          placeholder="Enter todo"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          required
+          value={search}
+          placeholder="Search todos..."
+          onChange={(e) => setSearch(e.target.value)}
+          style={styles.input}
         />
-        <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
 
-        </select>
+        <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+          <select onChange={(e) => setFilterCategory(e.target.value)} style={styles.select}>
+            <option value="">All</option>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Others">Others</option>
+          </select>
 
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="Work">Work</option>
-          <option value="Personal">Personal</option>
-          <option value="Shopping">Shopping</option>
-          <option value="Others">Others</option>
-        </select>
+          <button onClick={fetchTodos} style={styles.filterBtn}>Filter</button>
+        </div>
+      </div>
 
+      {/* Todo List */}
+      <div style={styles.card}>
+        <h3>Your Tasks</h3>
 
-        <button type="submit">Add</button>
-      </form>
+        {loading ? (
+          <p>Loading...</p>
+        ) : todos.length === 0 ? (
+          <p>No tasks found 😴</p>
+        ) : (
+          todos.map((todo) => (
+            <div key={todo._id} style={styles.todoCard}>
 
-      <input type="text" value={search} placeholder="search todos..." onChange={(e) => setSearch(e.target.value)}></input>
-     
+              <input
+                type="checkbox"
+                checked={todo.completed}
+                onChange={() => toggleCompleted(todo._id)}
+              />
 
-      <select onChange={(e)=> setFilterCategory(e.target.value)}>
-        <option value="">All</option>
-        <option value="Work">Work</option>
-        <option value="Personal">Personal</option>
-        <option value="Shopping">Shopping</option>
-        <option value="Others">Others</option>
-      </select>
-      <button onClick={fetchTodos}>Filter</button>
+              <div style={{ flex: 1 }}>
+                <span style={{
+                  textDecoration: todo.completed ? "line-through" : "none",
+                  fontWeight: "500"
+                }}>
+                  {todo.text}
+                </span>
 
-      <h3>Your Todos</h3>
-      <ul style={{ listStyle: "none", padding: 0 }}>
-  {loading ? (
-    <p>Loading...</p>
-  ) : todos.length === 0 ? (
-    <p>No todos found</p>
-  ) : (
-    todos.map((todo) => (
-      <li
-        key={todo._id}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          marginBottom: "10px",
-          border: "1px solid #ddd",
-          padding: "5px",
-          borderRadius: "5px"
-        }}
-      >      <input
-        type="checkbox"
-        checked={todo.completed}
-        onChange={() => toggleCompleted(todo._id)}
-      />
+                <div style={{ fontSize: "12px", color: "#666" }}>
+                  {todo.category} •{" "}
+                  <span style={{
+                    color:
+                      todo.priority === "High"
+                        ? "red"
+                        : todo.priority === "Medium"
+                        ? "orange"
+                        : "green"
+                  }}>
+                    {todo.priority}
+                  </span>
+                </div>
+              </div>
 
-      <span
-      style={{
-        flex: 1,
-        textDecoration: todo.completed ? "line-through" : "none"
-      }}
-    >
-      {todo.text}{" "}
-       <em style={{
-          fontSize: "0.8em",
-          color:
-            todo.priority === "High"
-              ? "red"
-              : todo.priority === "Medium"
-              ? "orange"
-              : "green"
-        }}>
-      ({todo.category}) - {todo.priority}
-    </em>
-    </span>
+              <button
+                style={styles.editBtn}
+                onClick={() => {
+                  const newText = prompt("Edit todo:", todo.text);
+                  if (newText) editTodo(todo._id, newText);
+                }}
+              >
+                Edit
+              </button>
 
-      <button
-        onClick={() => {
-          const newText = prompt("Edit todo:", todo.text);
-          if (newText) editTodo(todo._id, newText);
-        }}
-      >
-        Edit
-      </button>
+              <button
+                style={styles.deleteBtn}
+                onClick={() => deleteTodo(todo._id)}
+              >
+                Delete
+              </button>
 
-      <button onClick={() => deleteTodo(todo._id)}>Delete</button>
-    </li>
-  ))
-)}</ul>
+            </div>
+          ))
+        )}
+      </div>
+
     </div>
-  </>);
+  </div>
+);
 }
+const styles = {
+  container: {
+    minHeight: "100vh",
+    background: "#f1f5f9",
+    fontFamily: "Arial, sans-serif",
+  },
 
+  navbar: {
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "15px 30px",
+    background: "#0f172a",
+    color: "white",
+  },
+
+  logoutBtn: {
+    background: "#ef4444",
+    border: "none",
+    padding: "8px 12px",
+    color: "white",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+
+  content: {
+    maxWidth: "800px",
+    margin: "30px auto",
+  },
+
+  card: {
+    background: "white",
+    padding: "20px",
+    borderRadius: "10px",
+    marginBottom: "20px",
+    boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
+  },
+
+  form: {
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap",
+  },
+
+  input: {
+    padding: "10px",
+    flex: 1,
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+  },
+
+  select: {
+    padding: "10px",
+    borderRadius: "5px",
+  },
+
+  addBtn: {
+    background: "#3b82f6",
+    color: "white",
+    border: "none",
+    padding: "10px 15px",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+
+  filterBtn: {
+    background: "#6366f1",
+    color: "white",
+    border: "none",
+    padding: "10px",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+
+  todoCard: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "10px",
+    borderBottom: "1px solid #eee",
+  },
+
+  editBtn: {
+    background: "#f59e0b",
+    border: "none",
+    padding: "5px 10px",
+    color: "white",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+
+  deleteBtn: {
+    background: "#ef4444",
+    border: "none",
+    padding: "5px 10px",
+    color: "white",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+};
 export default Dashboard;
