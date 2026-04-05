@@ -42,53 +42,98 @@ function Register() {
   };
 
   return (
+  <div style={styles.container}>
 
-    <div style={{ width: "300px", margin: "50px auto" }}>
+    <div style={styles.card}>
+      <h2 style={styles.title}>Create Account ✨</h2>
 
-      <h2>Register</h2>
-
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={styles.form}>
 
         <input
           type="text"
-          name="name"
-          placeholder="Name"
-          value={form.name}
-          onChange={handleChange}
+          placeholder="Enter Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          style={styles.input}
         />
-
-        <br /><br />
 
         <input
           type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
+          placeholder="Enter Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          style={styles.input}
         />
-
-        <br /><br />
 
         <input
           type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
+          placeholder="Enter Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          style={styles.input}
         />
 
-        <br /><br />
-
-        <button type="submit">Register</button>
+        <button type="submit" style={styles.button}>
+          Register
+        </button>
 
       </form>
 
-      <p>Already have an  account? <Link to="/login" >Login</Link> </p>
-
+      <p style={styles.text}>
+        Already have an account?{" "}
+        <Link to="/login" style={styles.link}>Login</Link>
+      </p>
     </div>
 
-  );
+  </div>
+);
 
 }
+
+const styles = {
+  container: {
+    height: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "linear-gradient(135deg, #1e293b, #0f172a)",
+    fontFamily: "Arial",
+  },
+  card: {
+    backgroundColor: "#1e293b",
+    padding: "30px",
+    borderRadius: "10px",
+    width: "320px",
+    boxShadow: "0 5px 15px rgba(0,0,0,0.3)",
+    color: "white",
+    textAlign: "center",
+  },
+  title: { marginBottom: "20px" },
+  form: { display: "flex", flexDirection: "column" },
+  input: {
+    padding: "10px",
+    margin: "10px 0",
+    borderRadius: "5px",
+    border: "none",
+  },
+  button: {
+    padding: "10px",
+    marginTop: "10px",
+    backgroundColor: "#3b82f6",
+    color: "white",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+  text: { marginTop: "15px" },
+  link: {
+    color: "#3b82f6",
+    textDecoration: "none",
+    fontWeight: "bold",
+  },
+};
 
 export default Register;
