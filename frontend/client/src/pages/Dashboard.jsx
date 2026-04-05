@@ -90,20 +90,24 @@ function Dashboard() {
   return (
   <div style={styles.container}>
 
-    {/* Navbar */}
-    <div style={styles.navbar}>
-      <h2>TaskFlow Dashboard</h2>
+    {/* Sidebar */}
+    <div style={styles.sidebar}>
+      <h2 style={styles.logo}>TaskFlow</h2>
+
+      <button style={styles.sidebarBtn}>Dashboard</button>
+
       <button style={styles.logoutBtn} onClick={handleLogout}>
         Logout
       </button>
     </div>
 
-    <div style={styles.content}>
+    {/* Main Content */}
+    <div style={styles.main}>
 
-      {/* Add Todo */}
+      <h2 style={styles.heading}>Your Tasks</h2>
+
+      {/* Add Task */}
       <div style={styles.card}>
-        <h3>Add New Task</h3>
-
         <form onSubmit={addTodo} style={styles.form}>
           <input
             type="text"
@@ -133,41 +137,32 @@ function Dashboard() {
 
       {/* Filters */}
       <div style={styles.card}>
-        <h3>Search & Filter</h3>
-
         <input
           type="text"
           value={search}
-          placeholder="Search todos..."
+          placeholder="Search..."
           onChange={(e) => setSearch(e.target.value)}
           style={styles.input}
         />
 
-        <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-          <select onChange={(e) => setFilterCategory(e.target.value)} style={styles.select}>
-            <option value="">All</option>
-            <option value="Work">Work</option>
-            <option value="Personal">Personal</option>
-            <option value="Shopping">Shopping</option>
-            <option value="Others">Others</option>
-          </select>
-
-          <button onClick={fetchTodos} style={styles.filterBtn}>Filter</button>
-        </div>
+        <select onChange={(e) => setFilterCategory(e.target.value)} style={styles.select}>
+          <option value="">All</option>
+          <option value="Work">Work</option>
+          <option value="Personal">Personal</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Others">Others</option>
+        </select>
       </div>
 
-      {/* Todo List */}
+      {/* Task List */}
       <div style={styles.card}>
-        <h3>Your Tasks</h3>
-
         {loading ? (
           <p>Loading...</p>
         ) : todos.length === 0 ? (
-          <p>No tasks found 😴</p>
+          <p>No tasks 😴</p>
         ) : (
           todos.map((todo) => (
             <div key={todo._id} style={styles.todoCard}>
-
               <input
                 type="checkbox"
                 checked={todo.completed}
@@ -176,44 +171,32 @@ function Dashboard() {
 
               <div style={{ flex: 1 }}>
                 <span style={{
-                  textDecoration: todo.completed ? "line-through" : "none",
-                  fontWeight: "500"
+                  textDecoration: todo.completed ? "line-through" : "none"
                 }}>
                   {todo.text}
                 </span>
 
-                <div style={{ fontSize: "12px", color: "#666" }}>
-                  {todo.category} •{" "}
-                  <span style={{
-                    color:
-                      todo.priority === "High"
-                        ? "red"
-                        : todo.priority === "Medium"
-                        ? "orange"
-                        : "green"
-                  }}>
-                    {todo.priority}
-                  </span>
+                <div style={styles.meta}>
+                  {todo.category} • {todo.priority}
                 </div>
               </div>
 
               <button
                 style={styles.editBtn}
                 onClick={() => {
-                  const newText = prompt("Edit todo:", todo.text);
+                  const newText = prompt("Edit:", todo.text);
                   if (newText) editTodo(todo._id, newText);
                 }}
               >
-                Edit
+                ✏️
               </button>
 
               <button
                 style={styles.deleteBtn}
                 onClick={() => deleteTodo(todo._id)}
               >
-                Delete
+                ❌
               </button>
-
             </div>
           ))
         )}
@@ -225,39 +208,61 @@ function Dashboard() {
 }
 const styles = {
   container: {
-    minHeight: "100vh",
-    background: "#f1f5f9",
-    fontFamily: "Arial, sans-serif",
+    display: "flex",
+    height: "100vh",
+    fontFamily: "Arial",
   },
 
-  navbar: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "15px 30px",
+  sidebar: {
+    width: "220px",
     background: "#0f172a",
     color: "white",
+    padding: "20px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "15px",
   },
 
-  logoutBtn: {
-    background: "#ef4444",
+  logo: {
+    marginBottom: "20px",
+  },
+
+  sidebarBtn: {
+    padding: "10px",
+    background: "#1e293b",
     border: "none",
-    padding: "8px 12px",
     color: "white",
     borderRadius: "5px",
     cursor: "pointer",
   },
 
-  content: {
-    maxWidth: "800px",
-    margin: "30px auto",
+  logoutBtn: {
+    marginTop: "auto",
+    padding: "10px",
+    background: "#ef4444",
+    border: "none",
+    color: "white",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+
+  main: {
+    flex: 1,
+    padding: "20px",
+    background: "#f1f5f9",
+    overflowY: "auto",
+  },
+
+  heading: {
+    marginBottom: "20px",
   },
 
   card: {
     background: "white",
-    padding: "20px",
+    padding: "15px",
     borderRadius: "10px",
-    marginBottom: "20px",
-    boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
+    marginBottom: "15px",
+    boxShadow: "0 3px 10px rgba(0,0,0,0.1)",
   },
 
   form: {
@@ -282,15 +287,6 @@ const styles = {
     background: "#3b82f6",
     color: "white",
     border: "none",
-    padding: "10px 15px",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-
-  filterBtn: {
-    background: "#6366f1",
-    color: "white",
-    border: "none",
     padding: "10px",
     borderRadius: "5px",
     cursor: "pointer",
@@ -304,11 +300,15 @@ const styles = {
     borderBottom: "1px solid #eee",
   },
 
+  meta: {
+    fontSize: "12px",
+    color: "#666",
+  },
+
   editBtn: {
     background: "#f59e0b",
     border: "none",
-    padding: "5px 10px",
-    color: "white",
+    padding: "5px 8px",
     borderRadius: "5px",
     cursor: "pointer",
   },
@@ -316,8 +316,7 @@ const styles = {
   deleteBtn: {
     background: "#ef4444",
     border: "none",
-    padding: "5px 10px",
-    color: "white",
+    padding: "5px 8px",
     borderRadius: "5px",
     cursor: "pointer",
   },
