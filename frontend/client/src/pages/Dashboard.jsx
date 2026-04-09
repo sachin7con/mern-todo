@@ -356,7 +356,7 @@ const styles = {
   },
 
   editBtn: {
-    background: "#f59e0b",
+    background: "#e2b15b", // #f59e09
     border: "none",
     padding: "5px 8px",
     borderRadius: "5px",
@@ -364,7 +364,7 @@ const styles = {
   },
 
   deleteBtn: {
-    background: "#ef4444",
+    background: "#ef4444",  //#ef4444
     border: "none",
     padding: "5px 8px",
     borderRadius: "5px",
